@@ -1,1 +1,6 @@
-(module jwt ())
+(module jwt (JWT-MEDIA-TYPE JWT-URI jwt-encode jwt-decode)
+  (define JWT-MEDIA-TYPE "application/jwt")
+  (define JWT-URI "urn:ietf:params:oauth:token-type:jwt")
+  (define SUPPORTED-ALGORITHMS '("HS256" "none"))
+  (define (jwt-encode))
+  (define (jwt-decode)))
