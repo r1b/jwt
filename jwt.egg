@@ -1,6 +1,6 @@
 ((license "BSD")
  (category cryptography)
- (dependencies json sha2)
+ (dependencies base64 json sha2)
  (test-dependencies test)
  (author "Robert C Jensen")
  (synopsis "RFC7519 - JSON Web Token (JWT)")
