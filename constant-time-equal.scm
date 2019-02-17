@@ -6,9 +6,10 @@
   (define (constant-time-equal? s1 s2)
     (if (not (= (string-length s1) (string-length s2)))
         #f
-        (= (reduce bitwise-ior
-                   (lambda (pair) (bitwise-xor (first pair) (second pair)))
-                   (zip (map char->integer (string->list s1))
-                        (map char->integer (string->list s2))))
+        (= (fold bitwise-ior
+                 0
+                 (map (lambda (pair) (bitwise-xor (first pair) (second pair)))
+                      (zip (map char->integer (string->list s1))
+                           (map char->integer (string->list s2)))))
            0))))
 
