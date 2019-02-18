@@ -40,5 +40,14 @@
           (urlsafe-base64-encode
             "The genes are master programmers, and they are programming for their lives."))))
 
+(test-group "codecs"
+  (test "encode empty payload"
+        "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.e30.DMCAvRgzrcf5w0Z879BsqzcrnDFKBY_GN6c3qKOUFtQ"
+        (jwt-encode '() "secret"))
+
+  (test "decode empty payload"
+        '()
+        (jwt-decode "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.e30.DMCAvRgzrcf5w0Z879BsqzcrnDFKBY_GN6c3qKOUFtQ" "secret" "HS256")))
+
 (test-end "jwt")
 (test-exit)

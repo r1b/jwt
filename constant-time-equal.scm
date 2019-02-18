@@ -2,7 +2,8 @@
 ; https://codahale.com/a-lesson-in-timing-attacks/
 ; https://github.com/jpadilla/pyjwt/blob/1.7.1/jwt/compat.py#L33-L47
 (module constant-time-equal (constant-time-equal?)
-  (import chicken.bitwise srfi-1 scheme utf8)
+  (import chicken.bitwise srfi-1 scheme)
+  ; Note that we do not (import utf8) bc we want to count bytes here
   (define (constant-time-equal? s1 s2)
     (if (not (= (string-length s1) (string-length s2)))
         #f
