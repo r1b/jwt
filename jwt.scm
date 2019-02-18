@@ -2,7 +2,8 @@
 (include "urlsafe-base64.scm")
 
 (module jwt (jwt-encode jwt-decode)
-  (import chicken.base chicken.string constant-time-equal hmac medea scheme sha2 urlsafe-base64
+  (import chicken.base chicken.string constant-time-equal hmac medea scheme sha2
+          urlsafe-base64 utf8
           (only srfi-13 string-join)
           (only srfi-133 vector-append))
 

@@ -2,7 +2,7 @@
 ; https://codahale.com/a-lesson-in-timing-attacks/
 ; https://github.com/jpadilla/pyjwt/blob/1.7.1/jwt/compat.py#L33-L47
 (module constant-time-equal (constant-time-equal?)
-  (import chicken.bitwise srfi-1 scheme)
+  (import chicken.bitwise srfi-1 scheme utf8)
   (define (constant-time-equal? s1 s2)
     (if (not (= (string-length s1) (string-length s2)))
         #f

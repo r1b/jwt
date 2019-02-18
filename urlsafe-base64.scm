@@ -1,7 +1,7 @@
 ; Base64url encoding as described in RFC7515
 (module urlsafe-base64 (urlsafe-base64-encode urlsafe-base64-decode)
 
-  (import base64 scheme (only chicken.string string-split string-translate))
+  (import base64 scheme utf8 (only chicken.string string-split string-translate))
 
   ; string -> string
   (define (urlsafe-base64-encode s #!optional (altchars '(#\- #\_)))
