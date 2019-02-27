@@ -1,6 +1,5 @@
 (import
   (chicken blob)
-  (chicken file posix)
   (chicken foreign)
   (chicken io)
   scheme)
@@ -8,7 +7,6 @@
 #>
 #include <openssl/err.h>
 #include <openssl/evp.h>
-#include <openssl/obj_mac.h>
 #include <openssl/pem.h>
 <#
 
