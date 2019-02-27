@@ -1,6 +1,7 @@
 (import (chicken blob) (chicken file posix) (chicken foreign) scheme)
 
 #>
+#include <openssl/err.h>
 #include <openssl/obj_mac.h>
 #include <openssl/pem.h>
 #include <openssl/rsa.h>
@@ -35,12 +36,11 @@ Jt3cJv2wW8sxVy/rsInfwZBxTtNXKUNm3/am44dspIU8Enr/yc36GY9v2eF0iRhZ
 bzRSAkVIWUQcQ+c3nIl9fNFU/kRONjz9xuLSESobAOD41bCq6rFlvA==
 -----END RSA PRIVATE KEY-----")
 
+
+
 (define (foreign-error)
-  (begin
-    ((foreign-lambda* void ((scheme-object port))
-       "ERR_print_errors_fp(C_port_file(port));")
-     (current-error-port))
-    (error "libcrypto: whoops")))
+  (error ((foreign-lambda c-string "ERR_error_string" unsigned-long c-string)
+          ((foreign-lambda unsigned-long "ERR_get_error")) #f)))
 
 (define (rsa-sign message key)
   (let* ((bio (or ((foreign-lambda* c-pointer ((scheme-pointer buf) (int len))
