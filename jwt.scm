@@ -1,24 +1,44 @@
-(include "constant-time-equal.scm")
-(include "urlsafe-base64.scm")
+(include "algorithms")
+(include "urlsafe-base64")
 
 (module jwt (jwt-encode jwt-decode)
-  (import chicken.base chicken.string constant-time-equal hmac medea scheme sha2
-          srfi-1 urlsafe-base64 utf8
+  (import chicken.base chicken.string medea scheme srfi-1 urlsafe-base64 utf8
           (only srfi-13 string-join)
           (only srfi-133 vector-append))
 
   (define (sign message key algorithm)
     (cond
       ((equal? algorithm "none") "")
-      ((equal? algorithm "HS256") ((hmac key (sha256-primitive)) message))
+      ((equal? algorithm "ES256")
+       (begin
+         (import es256)
+         (sign message key)))
+      ((equal? algorithm "HS256")
+       (begin
+         (import hs256)
+         (sign message key)))
+      ((equal? algorithm "RS256")
+       (begin
+         (import rs256)
+         (sign message key)))
       (else (error "Algorithm not supported" algorithm))))
 
   (define (verify signing-input key signature algorithm)
     (cond
       ((equal? algorithm "none") #f)
-      ((equal? algorithm "HS256") (constant-time-equal? ((hmac key (sha256-primitive)) signing-input) signature))
+      ((equal? algorithm "ES256")
+       (begin
+         (import es256)
+         (verify signing-input key signature)))
+      ((equal? algorithm "HS256")
+       (begin
+         (import hs256)
+         (verify signing-input key signature)))
+      ((equal? algorithm "RS256")
+       (begin
+         (import rs256)
+         (verify signing-input key signature)))
       (else (error "Algorithm not supported" algorithm))))
-
 
   (define (make-header algorithm headers)
     (let ((base-header `((typ . "JWT") (alg . ,algorithm))))
@@ -31,14 +51,14 @@
            (encoded-signature (urlsafe-base64-encode (sign signing-input key algorithm))))
       (string-join `(,encoded-header ,encoded-payload ,encoded-signature) ".")))
 
-  (define (jwt-decode jwt key algorithm #!optional (verify-signature #t))
+  (define (jwt-decode jwt key algorithm #!optional (verify-signature-p #t))
     (let*-values (((encoded-header encoded-payload encoded-signature)
                    (apply values (string-split jwt ".")))
                   ((signing-input) (string-join `(,encoded-header ,encoded-payload) "."))
                   ((decoded-header) (read-json (urlsafe-base64-decode encoded-header)))
                   ((decoded-signature) (urlsafe-base64-decode encoded-signature)))
       (begin
-        (if verify-signature
+        (if verify-signature-p
             (let ((header-algorithm (cdr (assoc 'alg decoded-header))))
               (begin
                 (unless (equal? algorithm header-algorithm)

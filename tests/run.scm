@@ -1,29 +1,7 @@
-(include "../constant-time-equal.scm")
-(include "../urlsafe-base64.scm")
-(import constant-time-equal jwt test urlsafe-base64)
+(include "../urlsafe-base64")
+(import jwt test urlsafe-base64)
 
 (test-begin "jwt")
-
-(test-group "constant-time-equal"
-  (test
-    "equal length, equal"
-    #t
-    (constant-time-equal?
-      "abcdefghijklmnopqrstuvwxyz"
-      "abcdefghijklmnopqrstuvwxyz"))
-  (test
-    "equal length, not equal"
-    #f
-    (constant-time-equal?
-      "abcdefghijklmnopqrstuvwxyz"
-      "abcdefghijklmnopqrstuvwxyZ"))
-
-  (test
-    "not equal length, not equal"
-    #f
-    (constant-time-equal?
-      "abcdefghijklmnopqrstuvwxyz"
-      "abcdefghijk")))
 
 (test-group "urlsafe-base64"
   (test "removes padding"
