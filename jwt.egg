@@ -5,4 +5,4 @@
  (author "Robert C Jensen")
  (synopsis "RFC7519 - JSON Web Token (JWT)")
  (components
-  (extension jwt)))
+  (extension jwt (link-options "-L" "-lcrypto"))))

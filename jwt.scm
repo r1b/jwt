@@ -6,6 +6,7 @@
           (only srfi-13 string-join)
           (only srfi-133 vector-append))
 
+  ; FIXME less ugly branching
   (define (sign message key algorithm)
     (cond
       ((equal? algorithm "none") "")

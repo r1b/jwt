@@ -51,8 +51,9 @@
         ((foreign-lambda void "BIO_free" c-pointer) bio))))
 
   ; blob -> EVP_PKEY *
+  ; FIXME: Use EVP_PKEY_new_raw_private_key
   (define (load-raw-private-key key #!optional (type (foreign-value "EVP_PKEY_HMAC" int)))
-    (or ((foreign-lambda c-pointer "EVP_PKEY_new_raw_private_key" int c-pointer blob size_t)
+    (or ((foreign-lambda c-pointer "EVP_PKEY_new_mac_key" int c-pointer blob size_t)
          type #f key (blob-size key))
         (foreign-error)))
 
