@@ -63,7 +63,6 @@
         ((foreign-lambda void "BIO_free" c-pointer) bio))))
 
   ; string -> EVP_PKEY *
-  ; FIXME: Use EVP_PKEY_new_raw_private_key
   (define (load-secret-key key #!optional (type (foreign-value "EVP_PKEY_HMAC" int)))
     (or ((foreign-lambda c-pointer "EVP_PKEY_new_raw_private_key" int c-pointer unsigned-c-string size_t)
          type #f key (string-length key))
