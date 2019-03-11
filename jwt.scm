@@ -2,43 +2,25 @@
 (include "urlsafe-base64")
 
 (module jwt (jwt-encode jwt-decode)
-  (import chicken.base chicken.string medea scheme srfi-1 urlsafe-base64 utf8
+  (import algorithms chicken.base chicken.string medea scheme srfi-1
+          urlsafe-base64 utf8
           (only srfi-13 string-join)
           (only srfi-133 vector-append))
 
-  ; FIXME less ugly branching
   (define (sign message key algorithm)
     (cond
       ((equal? algorithm "none") "")
-      ((equal? algorithm "ES256")
-       (begin
-         (import es256)
-         (sign message key)))
-      ((equal? algorithm "HS256")
-       (begin
-         (import hs256)
-         (sign message key)))
-      ((equal? algorithm "RS256")
-       (begin
-         (import rs256)
-         (sign message key)))
+      ((equal? algorithm "ES256") (sign-es256 message key))
+      ((equal? algorithm "HS256") (sign-hs256 message key))
+      ((equal? algorithm "RS256") (sign-rs256 message key))
       (else (error "Algorithm not supported" algorithm))))
 
   (define (verify signing-input key signature algorithm)
     (cond
       ((equal? algorithm "none") #f)
-      ((equal? algorithm "ES256")
-       (begin
-         (import es256)
-         (verify signing-input key signature)))
-      ((equal? algorithm "HS256")
-       (begin
-         (import hs256)
-         (verify signing-input key signature)))
-      ((equal? algorithm "RS256")
-       (begin
-         (import rs256)
-         (verify signing-input key signature)))
+      ((equal? algorithm "ES256") (verify-es256 signing-input key signature))
+      ((equal? algorithm "HS256") (verify-hs256 signing-input key signature))
+      ((equal? algorithm "RS256") (verify-rs256 signing-input key signature))
       (else (error "Algorithm not supported" algorithm))))
 
   (define (make-header algorithm headers)
