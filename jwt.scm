@@ -34,7 +34,7 @@
            (encoded-signature (urlsafe-base64-encode (sign signing-input key algorithm))))
       (string-join `(,encoded-header ,encoded-payload ,encoded-signature) ".")))
 
-  (define (jwt-decode jwt key algorithm #!optional (verify-signature-p #t))
+  (define (jwt-decode jwt key #!optional (algorithm "HS256") (verify-signature-p #t))
     (let*-values (((encoded-header encoded-payload encoded-signature)
                    (apply values (string-split jwt ".")))
                   ((signing-input) (string-join `(,encoded-header ,encoded-payload) "."))
