@@ -16,3 +16,4 @@ You *probably* shouldn't use this.
 * [ ] Handle all edge cases in high-level interface
 * [ ] Fix ugly branching in sign / verify high-level interface
 * [ ] Pull out constant-time-equal, signatures into their own eggs
+* [ ] Support ports as message / key source
