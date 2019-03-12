@@ -1,5 +1,5 @@
 (include "../urlsafe-base64")
-(import jwt test urlsafe-base64)
+(import chicken.io jwt test urlsafe-base64)
 
 (test-begin "jwt")
 
@@ -19,21 +19,30 @@
             "The genes are master programmers, and they are programming for their lives."))))
 
 (test-group "codecs"
-  (test "encode empty payload"
+  (test "encode empty hmac payload"
         "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.e30.DMCAvRgzrcf5w0Z879BsqzcrnDFKBY_GN6c3qKOUFtQ"
         (jwt-encode '() "secret"))
 
-  (test "decode empty payload"
+  (test "decode empty hmac payload"
         '()
         (jwt-decode "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.e30.DMCAvRgzrcf5w0Z879BsqzcrnDFKBY_GN6c3qKOUFtQ" "secret"))
 
+  (test "encode empty rsa payload"
+        "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.e30.D_jZijCIsgJE_hd_HnF8-3If11ExB0RTVgVGaNetM1CSSDtMG47j_O6r2q9J2WoQ1hCuPzF_v2N9YmmCmTKQw1xxU_rphFYOs9SIyp-80CX4FinzZYamgsuRKsHo4AecRduicQn4oX-sHfLjuD56ZBUvc2K5Y4t4f0Lp4mj02i9Qip-xvQzLKEd43Wnkl84eX_y_JrqxNCjX8vcV8Wlj2PQm9h0BDtwuKdFEaR5fpKOnD4oBMs56g7QhRGEc9U-UDPWqeDAWAdMht6u_vjvKQQZ6gvVGpnZQt-S6vOMwz2J1Q1HMWqJBu07ShDByIDpxPAaKhkf0v6ZoPtigDY1ioQ"
+        (jwt-encode '() (read-string #f (open-input-file "rsa-private.pem")) "RS256"))
+
+
+  (test "decode empty rsa payload"
+        '()
+        (jwt-decode "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.e30.D_jZijCIsgJE_hd_HnF8-3If11ExB0RTVgVGaNetM1CSSDtMG47j_O6r2q9J2WoQ1hCuPzF_v2N9YmmCmTKQw1xxU_rphFYOs9SIyp-80CX4FinzZYamgsuRKsHo4AecRduicQn4oX-sHfLjuD56ZBUvc2K5Y4t4f0Lp4mj02i9Qip-xvQzLKEd43Wnkl84eX_y_JrqxNCjX8vcV8Wlj2PQm9h0BDtwuKdFEaR5fpKOnD4oBMs56g7QhRGEc9U-UDPWqeDAWAdMht6u_vjvKQQZ6gvVGpnZQt-S6vOMwz2J1Q1HMWqJBu07ShDByIDpxPAaKhkf0v6ZoPtigDY1ioQ" (read-string #f (open-input-file "rsa-public.pub")) "RS256"))
+
   (test-error
     "decode unexpected algorithm"
-    (jwt-decode "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.e30.DMCAvRgzrcf5w0Z879BsqzcrnDFKBY_GN6c3qKOUFtQ" "secret" "XXX"))
+    (jwt-decode "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.e30.DMCAvRgzrcf5w0Z879BsqzcrnDFKBY_GN6c3qKOUFtQ" "secret" "RS256"))
 
   (test-error
     "decode invalid signature"
-    (jwt-decode "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.e30.DMCAvRgzrcf5w0Z879BsqzcrnDFKBY_GN6c3qKOUFtQ" "foo" "XXX")))
+    (jwt-decode "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.e30.DMCAvRgzrcf5w0Z879BsqzcrnDFKBY_GN6c3qKOUFtQ" "foo" "HS256")))
 
 (test-end "jwt")
 (test-exit)
