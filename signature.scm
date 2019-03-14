@@ -101,7 +101,8 @@
                   (foreign-error))
               ((foreign-lambda void "EVP_MD_CTX_destroy" c-pointer) ctx)
               ((foreign-lambda void "EVP_PKEY_free" c-pointer) pkey)
-              (blob->string signature)))))))
+              ; signature-length MIGHT have changed e.g for (EC)DSA
+              (substring (blob->string signature) 0 signature-length)))))))
 
   (define ((make-asymmetric-verify get-message-digest) message key signature)
     (let* ((pkey (load-public-key key))
