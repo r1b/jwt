@@ -117,8 +117,8 @@
                          c-pointer blob unsigned-int)
          ctx (string->blob message) (string-length message))
 
-        (let ((verified (= ((foreign-lambda* int ((c-pointer ctx) (blob sig) (size_t siglen))
-                              "C_return(EVP_DigestVerifyFinal(ctx, sig, siglen));")
+        (let ((verified (= ((foreign-lambda int "EVP_DigestVerifyFinal"
+                                            c-pointer blob size_t)
                             ctx (string->blob signature) signature-length) 1)))
           (begin
             ((foreign-lambda void "EVP_MD_CTX_destroy" c-pointer) ctx)
