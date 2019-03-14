@@ -40,8 +40,8 @@
 
   ; string -> c-pointer
   (define (make-bio key)
-    (or ((foreign-lambda c-pointer "BIO_new_mem_buf" nonnull-c-string int)
-         key (string-length key))
+    (or ((foreign-lambda c-pointer "BIO_new_mem_buf" blob int)
+         (string->blob key) (string-length key))
         (foreign-error)))
 
   ; string -> EVP_PKEY *
@@ -68,8 +68,8 @@
 
   ; string -> EVP_PKEY *
   (define (load-secret-key key #!optional (type (foreign-value "EVP_PKEY_HMAC" int)))
-    (or ((foreign-lambda c-pointer "EVP_PKEY_new_raw_private_key" int c-pointer unsigned-c-string size_t)
-         type #f key (string-length key))
+    (or ((foreign-lambda c-pointer "EVP_PKEY_new_raw_private_key" int c-pointer blob size_t)
+         type #f (string->blob key) (string-length key))
         (foreign-error)))
 
   ; string -> EVP_MD * -> string string -> string
@@ -84,8 +84,8 @@
                           ctx #f (get-message-digest) #f pkey))
               (foreign-error))
           (or (positive? ((foreign-lambda int "EVP_DigestSignUpdate"
-                                          c-pointer unsigned-c-string unsigned-int)
-                          ctx message (string-length message)))
+                                          c-pointer blob unsigned-int)
+                          ctx (string->blob message) (string-length message)))
               (foreign-error))
           ; signature is NULL to get length in signature-length
           (or (positive? ((foreign-lambda int "EVP_DigestSignFinal"
@@ -114,12 +114,12 @@
                          c-pointer c-pointer c-pointer c-pointer c-pointer)
          ctx #f type #f pkey)
         ((foreign-lambda int "EVP_DigestVerifyUpdate"
-                         c-pointer unsigned-c-string unsigned-int)
-         ctx message (string-length message))
+                         c-pointer blob unsigned-int)
+         ctx (string->blob message) (string-length message))
 
-        (let ((verified (= ((foreign-lambda* int ((c-pointer ctx) (unsigned-c-string sig) (size_t siglen))
+        (let ((verified (= ((foreign-lambda* int ((c-pointer ctx) (blob sig) (size_t siglen))
                               "C_return(EVP_DigestVerifyFinal(ctx, sig, siglen));")
-                            ctx signature signature-length) 1)))
+                            ctx (string->blob signature) signature-length) 1)))
           (begin
             ((foreign-lambda void "EVP_MD_CTX_destroy" c-pointer) ctx)
             ((foreign-lambda void "EVP_PKEY_free" c-pointer) pkey)
