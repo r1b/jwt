@@ -26,15 +26,15 @@
   (test "rs256"
         '()
         (jwt-decode
-          (jwt-encode '() (read-string #f (open-input-file "rsa-private.pem")))
-          (read-string #f (open-input-file "rsa-public.pub"))))
+          (jwt-encode '() (read-string #f (open-input-file "rsa-private.pem")) "RS256")
+          (read-string #f (open-input-file "rsa-public.pub")) "RS256"))
 
   ; XXX Does this actually work? jwt.io says `no`
   (test "es256"
         '()
         (jwt-decode
-          (jwt-encode '() (read-string #f (open-input-file "ecdsa-private.pem")))
-          (read-string #f (open-input-file "ecdsa-public.pub"))))
+          (jwt-encode '() (read-string #f (open-input-file "ecdsa-private.pem")) "ES256")
+          (read-string #f (open-input-file "ecdsa-public.pub")) "ES256"))
 
   (test-error
     "decode unexpected algorithm"
