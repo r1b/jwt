@@ -29,6 +29,7 @@
           (jwt-encode '() (read-string #f (open-input-file "rsa-private.pem")))
           (read-string #f (open-input-file "rsa-private.pem"))))
 
+  ; XXX Does this actually work? jwt.io says `no`
   (test "es256"
         '()
         (jwt-decode
