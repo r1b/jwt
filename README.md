@@ -17,3 +17,4 @@ You *probably* shouldn't use this.
 * [ ] Fix ugly branching in sign / verify high-level interface
 * [ ] Pull out constant-time-equal, signatures into their own eggs
 * [ ] Support ports as message / key source
+* [ ] https://auth0.com/blog/critical-vulnerabilities-in-json-web-token-libraries/
