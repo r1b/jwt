@@ -47,10 +47,10 @@
   ; string -> EVP_PKEY *
   (define (load-private-key key)
     (let* ((bio (make-bio key))
-          (pkey (or ((foreign-lambda c-pointer "PEM_read_bio_PrivateKey"
-                                     c-pointer c-pointer c-pointer c-pointer)
-                     bio #f #f #f)
-                    (foreign-error))))
+           (pkey (or ((foreign-lambda c-pointer "PEM_read_bio_PrivateKey"
+                                      c-pointer c-pointer c-pointer c-pointer)
+                      bio #f #f #f)
+                     (foreign-error))))
       (begin
         ((foreign-lambda void "BIO_free" c-pointer) bio)
         pkey)))
@@ -58,10 +58,10 @@
   ; string -> EVP_PKEY *
   (define (load-public-key key)
     (let* ((bio (make-bio key))
-          (pkey (or ((foreign-lambda c-pointer "PEM_read_bio_PUBKEY"
-                                     c-pointer c-pointer c-pointer c-pointer)
-                     bio #f #f #f)
-                    (foreign-error))))
+           (pkey (or ((foreign-lambda c-pointer "PEM_read_bio_PUBKEY"
+                                      c-pointer c-pointer c-pointer c-pointer)
+                      bio #f #f #f)
+                     (foreign-error))))
       (begin
         ((foreign-lambda void "BIO_free" c-pointer) bio)
         pkey)))
@@ -75,7 +75,8 @@
   ; string -> EVP_MD * -> string string -> string
   (define ((make-sign get-message-digest load-key) message key)
     (let* ((pkey (load-key key))
-           (ctx ((foreign-lambda c-pointer "EVP_MD_CTX_create"))))
+           (ctx (or ((foreign-lambda c-pointer "EVP_MD_CTX_create"))
+                    (foreign-error))))
       (let-location ((signature-length size_t))
         (begin
           ((foreign-lambda void "EVP_MD_CTX_init" c-pointer) ctx)
@@ -111,20 +112,22 @@
            (signature-length (string-length signature)))
       (begin
         ((foreign-lambda void "EVP_MD_CTX_init" c-pointer) ctx)
-        ((foreign-lambda int "EVP_DigestVerifyInit"
-                         c-pointer c-pointer c-pointer c-pointer c-pointer)
-         ctx #f type #f pkey)
-        ((foreign-lambda int "EVP_DigestVerifyUpdate"
-                         c-pointer blob unsigned-int)
-         ctx (string->blob message) (string-length message))
-
-        (let ((verified (= ((foreign-lambda int "EVP_DigestVerifyFinal"
-                                            c-pointer blob size_t)
-                            ctx (string->blob signature) signature-length) 1)))
+        (or (positive? ((foreign-lambda int "EVP_DigestVerifyInit"
+                                        c-pointer c-pointer c-pointer c-pointer c-pointer)
+                        ctx #f type #f pkey))
+            (foreign-error))
+        (or (positive? ((foreign-lambda int "EVP_DigestVerifyUpdate"
+                                        c-pointer blob unsigned-int)
+                        ctx (string->blob message) (string-length message)))
+            (foreign-error))
+        (let ((verify-result
+                ((foreign-lambda int "EVP_DigestVerifyFinal"
+                                 c-pointer blob size_t)
+                 ctx (string->blob signature) signature-length)))
           (begin
             ((foreign-lambda void "EVP_MD_CTX_destroy" c-pointer) ctx)
             ((foreign-lambda void "EVP_PKEY_free" c-pointer) pkey)
-            verified)))))
+            (= (or verify-result (foreign-error)) 1))))))
 
   (define ((make-symmetric-verify get-message-digest) message key signature)
     (constant-time-equal? signature
