@@ -36,7 +36,7 @@
 
   (define (jwt-decode jwt key #!optional (algorithm "HS256") (verify-signature-p #t))
     (let*-values (((encoded-header encoded-payload encoded-signature)
-                   (apply values (string-split jwt ".")))
+                   (apply values (string-split jwt "." #t)))
                   ((signing-input) (string-join `(,encoded-header ,encoded-payload) "."))
                   ((decoded-header) (read-json (urlsafe-base64-decode encoded-header)))
                   ((decoded-signature) (urlsafe-base64-decode encoded-signature)))

@@ -35,6 +35,13 @@
           (jwt-encode '() (read-string #f (open-input-file "ecdsa-private.pem")) "ES256")
           (read-string #f (open-input-file "ecdsa-public.pub")) "ES256"))
 
+  (test "none without verify"
+        '()
+        (jwt-decode (jwt-encode '() "" "none") "" "none" #f))
+
+  (test-error "none with verify"
+        (jwt-decode (jwt-encode '() "" "none") "" "none"))
+
   (test-error
     "decode unexpected algorithm"
     (jwt-decode "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.e30.DMCAvRgzrcf5w0Z879BsqzcrnDFKBY_GN6c3qKOUFtQ" "secret" "RS256"))
