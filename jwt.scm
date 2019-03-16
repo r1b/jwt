@@ -1,8 +1,9 @@
 (include "algorithms")
+(include "claims")
 (include "urlsafe-base64")
 
 (module jwt (jwt-encode jwt-decode)
-  (import algorithms chicken.base chicken.string medea scheme srfi-1
+  (import algorithms chicken.base chicken.string claims medea scheme srfi-1
           urlsafe-base64 utf8
           (only srfi-13 string-join)
           (only srfi-133 vector-append))
@@ -34,7 +35,10 @@
            (encoded-signature (urlsafe-base64-encode (sign signing-input key algorithm))))
       (string-join `(,encoded-header ,encoded-payload ,encoded-signature) ".")))
 
-  (define (jwt-decode jwt key #!optional (algorithm "HS256") (verify-signature-p #t))
+  (define (jwt-decode jwt key #!optional
+                      (algorithm "HS256")
+                      (verify-signature-p #t)
+                      claims-spec)
     (let*-values (((encoded-header encoded-payload encoded-signature)
                    (apply values (string-split jwt "." #t)))
                   ((signing-input) (string-join `(,encoded-header ,encoded-payload) "."))
@@ -48,4 +52,7 @@
                   (error "Unexpected algorithm" header-algorithm))
                 (unless (verify signing-input key decoded-signature algorithm)
                   (error "Invalid signature" decoded-signature)))))
-        (read-json (urlsafe-base64-decode encoded-payload))))))
+        (let ((claims (read-json (urlsafe-base64-decode encoded-payload))))
+          (begin
+            (and claims-spec (validate-claims claims claims-spec))
+            claims))))))
