@@ -17,11 +17,10 @@
       ('(exp) (or (< (current-seconds) (+ claim (if (null? spec) 0 spec)))))
       ('(nbf) (or (> (current-seconds) (- claim (if (null? spec) 0 spec)))))))
 
-  (define ((associate-claim claims) claim-spec)
-    (let ((claim (car claim-spec)))
-      (apply values `(,claim ,(cdr (assoc (car (claim-spec)) claims)) ,(cdr claim-spec)))))
-
   (define (validate-claims claims claims-spec)
-    (for-each (lambda (associated-claims)
-                (call-with-values associated-claims validate-claim))
-              (map (associate-claim claims) claims-spec))))
+    (for-each (lambda (claim-spec)
+                (let* ((name (car claim-spec))
+                       (claim (cdr (assoc name claims)))
+                       (spec (cdr claim-spec)))
+                  (validate-claim name claim spec)))
+              claims-spec)))
