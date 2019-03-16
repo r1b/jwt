@@ -14,8 +14,10 @@
                           (claim-error name claim spec)))
       ('(aud) (or (if (list? spec) (member claim spec) (equal? claim spec))
                   (claim-error name claim spec)))
-      ('(exp) (or (< (current-seconds) (+ claim (if (null? spec) 0 spec)))))
-      ('(nbf) (or (> (current-seconds) (- claim (if (null? spec) 0 spec)))))))
+      ('(exp) (or (< (current-seconds) (+ claim (if (null? spec) 0 spec)))
+                  (claim-error name claim spec))))
+      ('(nbf) (or (> (current-seconds) (- claim (if (null? spec) 0 spec)))
+                  (claim-error name claim spec)))))
 
   (define (validate-claims claims claims-spec)
     (for-each (lambda (claim-spec)
