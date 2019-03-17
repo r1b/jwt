@@ -37,11 +37,11 @@
 
   (test "none"
         '()
-        (jwt-decode (jwt-encode '() "" "none") "" "none" #f))
+        (jwt-decode (jwt-encode '() "" "none") "" "none" #f)))
 
-  (test-error "none with verify"
-        (jwt-decode (jwt-encode '() "" "none") "" "none"))
-
+(test-group "token-verification"
+  (test-error "verify none"
+              (jwt-decode (jwt-encode '() "" "none") "" "none"))
   (test-error
     "decode unexpected algorithm"
     (jwt-decode "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.e30.DMCAvRgzrcf5w0Z879BsqzcrnDFKBY_GN6c3qKOUFtQ" "secret" "RS256"))
@@ -51,14 +51,55 @@
     (jwt-decode "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.e30.DMCAvRgzrcf5w0Z879BsqzcrnDFKBY_GN6c3qKOUFtQ" "foo" "HS256")))
 
 (test-group "claim-verification"
-  (test "verify iss"
+  (test "verify iss (valid)"
         '((iss . "https://nsa.gov"))
         (jwt-decode
           (jwt-encode '((iss . "https://nsa.gov")) "secret" "HS256")
           "secret"
           "HS256"
           #t
-          '((iss . "https://nsa.gov")))))
+          '((iss . "https://nsa.gov"))))
+
+  (test-error "verify iss (invalid)"
+              (jwt-decode
+                (jwt-encode '((iss . "https://cia.gov")) "secret" "HS256")
+                "secret"
+                "HS256"
+                #t
+                '((iss . "https://nsa.gov"))))
+
+  (test "verify jti (valid)"
+        '((jti . "E1B5296E-BDA6-41FB-A69B-F719B04F7826"))
+        (jwt-decode
+          (jwt-encode '((jti . "E1B5296E-BDA6-41FB-A69B-F719B04F7826")) "secret" "HS256")
+          "secret"
+          "HS256"
+          #t
+          '((jti . "E1B5296E-BDA6-41FB-A69B-F719B04F7826"))))
+
+  (test-error "verify jti (invalid)"
+              (jwt-decode
+                (jwt-encode '((jti . "E1B5296E-BDA6-41FB-A69B-F719B04F7826")) "secret" "HS256")
+                "secret"
+                "HS256"
+                #t
+                '((jti . "BFC2F372-F893-410D-9EBE-2BE5F053678C"))))
+  (test "verify sub (valid)"
+        '((sub . "user:12345"))
+        (jwt-decode
+          (jwt-encode '((sub . "user:12345")) "secret" "HS256")
+          "secret"
+          "HS256"
+          #t
+          '((sub . "user:12345"))))
+
+  (test-error "verify sub (invalid)"
+        (jwt-decode
+          (jwt-encode '((sub . "user:12345")) "secret" "HS256")
+          "secret"
+          "HS256"
+          #t
+          '((sub . "user:54321")))))
 
 (test-end "jwt")
 (test-exit)
