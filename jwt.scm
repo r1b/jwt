@@ -3,7 +3,7 @@
 (include "urlsafe-base64")
 
 (module jwt (jwt-encode jwt-decode)
-  (import algorithms chicken.base chicken.string claims medea scheme srfi-1
+  (import chicken.base chicken.string claims medea scheme srfi-1
           urlsafe-base64 utf8
           (only srfi-13 string-join)
           (only srfi-133 vector-append))
@@ -14,17 +14,15 @@
   (define (sign message key algorithm)
     (case algorithm
       ((none) "")
-      ((ES256) (sign-es256 message key))
-      ((HS256) (sign-hs256 message key))
-      ((RS256) (sign-rs256 message key))
+      ((ES256 HS256 RS256)
+       (eval `(begin (import ,algorithm) (sign ,message ,key))))
       (else (algorithm-error algorithm))))
 
   (define (verify signing-input key signature algorithm)
     (case algorithm
       ((none) #f)
-      ((ES256) (verify-es256 signing-input key signature))
-      ((HS256) (verify-hs256 signing-input key signature))
-      ((RS256) (verify-rs256 signing-input key signature))
+      ((ES256 HS256 RS256)
+       (eval `(begin (import ,algorithm) (verify ,signing-input ,key ,signature))))
       (else (algorithm-error algorithm))))
 
   (define (make-header algorithm headers)

@@ -4,7 +4,9 @@
  (test-dependencies test)
  (author "Robert C Jensen")
  (synopsis "RFC7519 - JSON Web Token (JWT)")
+ (component-options
+    (csc-options "-C" "-I/usr/local/opt/openssl@1.1/include")
+    (link-options "-L" "-L/usr/local/opt/openssl@1.1/lib" "-L" "-lcrypto"))
  (components
-  (extension jwt
-   (csc-options "-C" "-I/usr/local/opt/openssl@1.1/include")
-   (link-options "-L" "-L/usr/local/opt/openssl@1.1/lib" "-L" "-lcrypto"))))
+    (extension algorithms (modules ES256 HS256 RS256))
+    (extension jwt)))
