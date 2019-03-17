@@ -10,14 +10,15 @@
 
   (define (validate-claim name claim spec)
     (case name
-      ('(iss jti sub) (or (equal? claim spec)
+      ((iss jti sub) (or (equal? claim spec)
                           (claim-error name claim spec)))
-      ('(aud) (or (if (list? spec) (member claim spec) (equal? claim spec))
+      ((aud) (or (if (list? spec) (member claim spec) (equal? claim spec))
                   (claim-error name claim spec)))
-      ('(exp) (or (< (current-seconds) (+ claim (if (null? spec) 0 spec)))
-                  (claim-error name claim spec))))
-      ('(nbf) (or (> (current-seconds) (- claim (if (null? spec) 0 spec)))
-                  (claim-error name claim spec)))))
+      ((exp) (or (< (current-seconds) (+ claim (if (null? spec) 0 spec)))
+                  (claim-error name claim spec)))
+      ((nbf) (or (> (current-seconds) (- claim (if (null? spec) 0 spec)))
+                  (claim-error name claim spec)))
+      (else (error "Unknown claim" name))))
 
   (define (validate-claims claims claims-spec)
     (for-each (lambda (claim-spec)

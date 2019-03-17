@@ -35,7 +35,7 @@
           (jwt-encode '() (read-string #f (open-input-file "ecdsa-private.pem")) "ES256")
           (read-string #f (open-input-file "ecdsa-public.pub")) "ES256"))
 
-  (test "none without verify"
+  (test "none"
         '()
         (jwt-decode (jwt-encode '() "" "none") "" "none" #f))
 
@@ -49,6 +49,16 @@
   (test-error
     "decode invalid signature"
     (jwt-decode "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.e30.DMCAvRgzrcf5w0Z879BsqzcrnDFKBY_GN6c3qKOUFtQ" "foo" "HS256")))
+
+(test-group "claim-verification"
+  (test "verify iss"
+        '((iss . "https://nsa.gov"))
+        (jwt-decode
+          (jwt-encode '((iss . "https://nsa.gov")) "secret" "HS256")
+          "secret"
+          "HS256"
+          #t
+          '((iss . "https://nsa.gov")))))
 
 (test-end "jwt")
 (test-exit)

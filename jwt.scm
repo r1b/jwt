@@ -8,21 +8,24 @@
           (only srfi-13 string-join)
           (only srfi-133 vector-append))
 
+  (define (algorithm-error algorithm)
+    (error "Algorithm not supported" algorithm))
+
   (define (sign message key algorithm)
-    (cond
-      ((equal? algorithm "none") "")
-      ((equal? algorithm "ES256") (sign-es256 message key))
-      ((equal? algorithm "HS256") (sign-hs256 message key))
-      ((equal? algorithm "RS256") (sign-rs256 message key))
-      (else (error "Algorithm not supported" algorithm))))
+    (case algorithm
+      ((none) "")
+      ((ES256) (sign-es256 message key))
+      ((HS256) (sign-hs256 message key))
+      ((RS256) (sign-rs256 message key))
+      (else (algorithm-error algorithm))))
 
   (define (verify signing-input key signature algorithm)
-    (cond
-      ((equal? algorithm "none") #f)
-      ((equal? algorithm "ES256") (verify-es256 signing-input key signature))
-      ((equal? algorithm "HS256") (verify-hs256 signing-input key signature))
-      ((equal? algorithm "RS256") (verify-rs256 signing-input key signature))
-      (else (error "Algorithm not supported" algorithm))))
+    (case algorithm
+      ((none) #f)
+      ((ES256) (verify-es256 signing-input key signature))
+      ((HS256) (verify-hs256 signing-input key signature))
+      ((RS256) (verify-rs256 signing-input key signature))
+      (else (algorithm-error algorithm))))
 
   (define (make-header algorithm headers)
     (let ((base-header `((typ . "JWT") (alg . ,algorithm))))
@@ -32,7 +35,7 @@
     (let* ((encoded-header (urlsafe-base64-encode (json->string (make-header algorithm headers))))
            (encoded-payload (urlsafe-base64-encode (json->string payload)))
            (signing-input (string-join `(,encoded-header ,encoded-payload) "."))
-           (encoded-signature (urlsafe-base64-encode (sign signing-input key algorithm))))
+           (encoded-signature (urlsafe-base64-encode (sign signing-input key (string->symbol algorithm)))))
       (string-join `(,encoded-header ,encoded-payload ,encoded-signature) ".")))
 
   (define (jwt-decode jwt key #!optional
@@ -50,7 +53,7 @@
               (begin
                 (unless (equal? algorithm header-algorithm)
                   (error "Unexpected algorithm" header-algorithm))
-                (unless (verify signing-input key decoded-signature algorithm)
+                (unless (verify signing-input key decoded-signature (string->symbol algorithm))
                   (error "Invalid signature" decoded-signature)))))
         (let ((claims (read-json (urlsafe-base64-decode encoded-payload))))
           (begin
