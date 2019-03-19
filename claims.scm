@@ -44,7 +44,7 @@
                         (type-error name "string or vector"))
                     (let ((claim (if (string? claim) (vector claim) claim))
                           (spec ((if (string? spec) (vector spec) spec))))
-                      (or (vector-subset spec claim)
+                      (or (vector-subset claim spec)
                           (claim-error name claim spec)))))
       ((exp) (begin (or (ensure-timestamp claim) (type-error name "integer"))
                     (or (< (current-seconds) (+ claim (if (null? spec) 0 spec)))
