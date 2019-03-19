@@ -1,6 +1,6 @@
 ; claim-spec            := <atom-spec> | <atom-or-member-spec> | <time-spec>
 ; atom-spec             := ('iss | 'jti | 'sub . <atom>)
-; atom-or-list-spec     := ('aud . <atom> | (<atom> ...))
+; atom-or-vector-spec   := ('aud . <atom> | #(<atom> ...))
 ; time-spec             := ('exp | 'nbf . [<leeway>])
 (module claims (validate-claims)
   (import (chicken base) (chicken time) scheme srfi-133)
