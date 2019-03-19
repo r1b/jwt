@@ -19,7 +19,7 @@
     (string? value))
 
   (define (ensure-vector-of-string-or-uri value)
-    (and (vector? value) (vector-every string? value)))
+    (and (vector? value) (vector-every ensure-sting-or-uri value)))
 
   (define (ensure-timestamp value)
     (integer? value))
