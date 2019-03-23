@@ -19,14 +19,14 @@
     (string? value))
 
   (define (ensure-vector-of-string-or-uri value)
-    (and (vector? value) (vector-every ensure-sting-or-uri value)))
+    (and (vector? value) (vector-every ensure-string-or-uri value)))
 
   (define (ensure-timestamp value)
     (integer? value))
 
   ; ---------------------------------------------------------------------------
 
-  (define (vector-subset src dest)
+  (define (vector-subset? src dest)
     (vector-every (lambda (src-element)
                     (vector-any (lambda (dest-element)
                                   (equal? src-element dest-element))
@@ -44,7 +44,7 @@
                         (type-error name "string or vector"))
                     (let ((claim (if (string? claim) (vector claim) claim))
                           (spec (if (string? spec) (vector spec) spec)))
-                      (or (vector-subset claim spec)
+                      (or (vector-subset? claim spec)
                           (claim-error name claim spec)))))
       ((exp) (begin (or (ensure-timestamp claim) (type-error name "integer"))
                     (or (< (current-seconds) (+ claim (if (null? spec) 0 spec)))

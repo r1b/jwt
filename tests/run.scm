@@ -94,12 +94,80 @@
           '((sub . "user:12345"))))
 
   (test-error "verify sub (invalid)"
+              (jwt-decode
+                (jwt-encode '((sub . "user:12345")) "secret" "HS256")
+                "secret"
+                "HS256"
+                #t
+                '((sub . "user:54321"))))
+
+  (test "verify aud (valid) [single]"
+        '((aud . "humans"))
         (jwt-decode
-          (jwt-encode '((sub . "user:12345")) "secret" "HS256")
+          (jwt-encode '((aud . "humans")) "secret" "HS256")
           "secret"
           "HS256"
           #t
-          '((sub . "user:54321")))))
+          '((aud . "humans"))))
+
+  (test "verify aud (valid) [multi]"
+        '((aud . #("politicians" "humans")))
+        (jwt-decode
+          (jwt-encode '((aud . #("politicians" "humans"))) "secret" "HS256")
+          "secret"
+          "HS256"
+          #t
+          '((aud . #("politicians" "humans")))))
+
+  (test "verify aud (valid) [single-subset]"
+        '((aud . "humans"))
+        (jwt-decode
+          (jwt-encode '((aud . "humans")) "secret" "HS256")
+          "secret"
+          "HS256"
+          #t
+          '((aud . #("politicians" "humans")))))
+
+  (test "verify aud (valid) [multi-subset]"
+        '((aud . #("humans" "politicians")))
+        (jwt-decode
+          (jwt-encode '((aud . #("humans" "politicians"))) "secret" "HS256")
+          "secret"
+          "HS256"
+          #t
+          '((aud . #("politicians" "humans" "aliens")))))
+
+  (test-error "verify aud (invalid) [single]"
+              (jwt-decode
+                (jwt-encode '((aud . "politicians")) "secret" "HS256")
+                "secret"
+                "HS256"
+                #t
+                '((aud . "humans"))))
+
+  (test-error "verify aud (invalid) [multi]"
+              (jwt-decode
+                (jwt-encode '((aud . #("politicians" "humans"))) "secret" "HS256")
+                "secret"
+                "HS256"
+                #t
+                '((aud . #("politicians" "aliens")))))
+
+  (test-error "verify aud (invalid) [single-subset]"
+              (jwt-decode
+                (jwt-encode '((aud . "humans")) "secret" "HS256")
+                "secret"
+                "HS256"
+                #t
+                '((aud . #("politicians" "aliens")))))
+
+  (test-error "verify aud (invalid) [multi-subset]"
+              (jwt-decode
+                (jwt-encode '((aud . #("humans" "politicians" "insects"))) "secret" "HS256")
+                "secret"
+                "HS256"
+                #t
+                '((aud . #("politicians" "humans" "aliens"))))))
 
 (test-end "jwt")
 (test-exit)
