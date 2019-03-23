@@ -16,8 +16,8 @@ You *probably* shouldn't use this.
     * [ ] Overhaul the interface for loading keys to enforce PKEY type
 
 #### 2E
-* [ ] Add claim validation
-    * [ ] Add tests with non-empty claims
+* [x] Add claim validation
+    * [x] Add tests with non-empty claims
 * [ ] Handle all edge cases in high-level interface
 * [ ] Support the full set of algos on jwt.io
     * [ ] HS384

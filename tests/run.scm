@@ -1,5 +1,5 @@
 (include "../urlsafe-base64")
-(import chicken.io jwt test urlsafe-base64)
+(import chicken.io chicken.time jwt test urlsafe-base64)
 
 (test-begin "jwt")
 
@@ -167,7 +167,82 @@
                 "secret"
                 "HS256"
                 #t
-                '((aud . #("politicians" "humans" "aliens"))))))
+                '((aud . #("politicians" "humans" "aliens")))))
+
+  (let* ((five-minutes 300)
+         (ten-minutes 600)
+         (five-minutes-ago (- (current-seconds) five-minutes))
+         (five-minutes-from-now (+ (current-seconds) five-minutes))
+         (ten-minutes-ago (- (current-seconds) ten-minutes))
+         (ten-minutes-from-now (+ (current-seconds) ten-minutes)))
+
+    (test "verify exp (valid) [no-leeway]"
+          `((exp . ,five-minutes-from-now))
+          (jwt-decode
+            (jwt-encode `((exp . ,five-minutes-from-now)) "secret" "HS256")
+            "secret"
+            "HS256"
+            #t
+            '((exp))))
+
+    (test "verify exp (valid) [with-leeway]"
+          `((exp . ,five-minutes-ago))
+          (jwt-decode
+            (jwt-encode `((exp . ,five-minutes-ago)) "secret" "HS256")
+            "secret"
+            "HS256"
+            #t
+            `((exp . ,ten-minutes))))
+
+    (test-error "verify exp (invalid) [no-leeway]"
+                (jwt-decode
+                  (jwt-encode `((exp . ,five-minutes-ago)) "secret" "HS256")
+                  "secret"
+                  "HS256"
+                  #t
+                  '((exp))))
+
+    (test-error "verify exp (invalid) [with-leeway]"
+                (jwt-decode
+                  (jwt-encode `((exp . ,ten-minutes-ago)) "secret" "HS256")
+                  "secret"
+                  "HS256"
+                  #t
+                  `((exp . ,five-minutes))))
+
+    (test "verify nbf (valid) [no-leeway]"
+          `((nbf . ,five-minutes-ago))
+          (jwt-decode
+            (jwt-encode `((nbf . ,five-minutes-ago)) "secret" "HS256")
+            "secret"
+            "HS256"
+            #t
+            '((nbf))))
+
+    (test "verify nbf (valid) [with-leeway]"
+          `((nbf . ,five-minutes-from-now))
+          (jwt-decode
+            (jwt-encode `((nbf . ,five-minutes-from-now)) "secret" "HS256")
+            "secret"
+            "HS256"
+            #t
+            `((nbf . ,ten-minutes))))
+
+    (test-error "verify nbf (invalid) [no-leeway]"
+                (jwt-decode
+                  (jwt-encode `((nbf . ,five-minutes-from-now)) "secret" "HS256")
+                  "secret"
+                  "HS256"
+                  #t
+                  '((exp))))
+
+    (test-error "verify nbf (invalid) [with-leeway]"
+                (jwt-decode
+                  (jwt-encode `((nbf . ,ten-minutes-from-now)) "secret" "HS256")
+                  "secret"
+                  "HS256"
+                  #t
+                  `((nbf . ,five-minutes))))))
 
 (test-end "jwt")
 (test-exit)
