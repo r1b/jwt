@@ -15,13 +15,13 @@
 
   ; ---------------------------------------------------------------------------
 
-  (define (ensure-string-or-uri value)
+  (define (string-or-uri? value)
     (string? value))
 
-  (define (ensure-vector-of-string-or-uri value)
-    (and (vector? value) (vector-every ensure-string-or-uri value)))
+  (define (vector-of-string-or-uri? value)
+    (and (vector? value) (vector-every string-or-uri? value)))
 
-  (define (ensure-timestamp value)
+  (define (timestamp? value)
     (integer? value))
 
   ; ---------------------------------------------------------------------------
@@ -37,19 +37,19 @@
 
   (define (validate-claim name claim spec)
     (case name
-      ((iss jti sub) (begin (or (ensure-string-or-uri claim) (type-error name "string"))
+      ((iss jti sub) (begin (or (string-or-uri? claim) (type-error name "string"))
                             (or (equal? claim spec) (claim-error name claim spec))))
-      ((aud) (begin (or (ensure-string-or-uri claim)
-                        (ensure-vector-of-string-or-uri claim)
+      ((aud) (begin (or (string-or-uri? claim)
+                        (vector-of-string-or-uri? claim)
                         (type-error name "string or vector"))
                     (let ((claim (if (string? claim) (vector claim) claim))
                           (spec (if (string? spec) (vector spec) spec)))
                       (or (vector-subset? claim spec)
                           (claim-error name claim spec)))))
-      ((exp) (begin (or (ensure-timestamp claim) (type-error name "integer"))
+      ((exp) (begin (or (timestamp? claim) (type-error name "integer"))
                     (or (< (current-seconds) (+ claim (if (null? spec) 0 spec)))
                         (claim-error name claim spec))))
-      ((nbf) (begin (or (ensure-timestamp claim) (type-error name "integer"))
+      ((nbf) (begin (or (timestamp? claim) (type-error name "integer"))
                     (or (> (current-seconds) (- claim (if (null? spec) 0 spec)))
                         (claim-error name claim spec))))
       (else (error "Unknown claim" name))))
