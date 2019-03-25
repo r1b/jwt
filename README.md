@@ -12,6 +12,15 @@ You *probably* shouldn't use this.
 
 #### 3E
 * [ ] Add JWK support
+    * [ ] Interface
+    * [ ] Support symmetric keys
+    * [ ] ASN.1 codecs
+        * [ ] SubjectPublicKeyInfo
+        * [ ] PrivateKeyInfo
+        * [ ] RSAPublicKey
+        * [ ] RSAPrivateKey
+        * [ ] ECPrivateKey
+    * [ ] JWK <-> ASN.1 <-> PEM
 * [ ] https://auth0.com/blog/critical-vulnerabilities-in-json-web-token-libraries/
     * [ ] Overhaul the interface for loading keys to enforce PKEY type
 
@@ -44,4 +53,8 @@ You *probably* shouldn't use this.
 * [ ] Support ports as message / key source
 * [ ] Nested JWTs
 * [ ] Encrypted JWTs
-* [ ] Pull out constant-time-equal, signatures into their own eggs
+* [ ] Pull out useful eggs:
+    * [ ] constant-time-equal
+    * [ ] libcrypto (start from signatures)
+    * [ ] asn-1 (start from JWK codecs)
+    * [ ] port srfi-60, srfi-151 to chicken 5
